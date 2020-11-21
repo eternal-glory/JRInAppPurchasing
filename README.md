@@ -339,7 +339,7 @@ static JRInAppPurchasing *_instance = nil;
   1.根据字段 environment = sandbox。
   2.根据验证接口返回的状态码,如果status=21007，则表示当前为沙盒环境。
 苹果反馈的状态码：
-  21000App Store无法读取你提供的JSON数据
+  21000 App Store无法读取你提供的JSON数据
   21002 订单数据不符合格式
   21003 订单无法被验证
   21004 你提供的共享密钥和账户的共享密钥不一致
