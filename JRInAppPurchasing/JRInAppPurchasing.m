@@ -1,74 +1,10 @@
-# JRInAppPurchasing
-iOS内购 简易操作流程
+//
+//  JRInAppPurchasing.m
+//  JRInAppPurchasing
+//
+//  Created by literature on 2020/11/20.
+//
 
-### 创建内购的单利类实体
-.h
-```
-#import <Foundation/Foundation.h>
-
-#define kServiceStatus  0
-
-#if kServiceStatus == 0
-
-#define ITMS_VERIFY_RECEIPT_URL @"https://sandbox.itunes.apple.com/verifyReceipt"
-
-#elif kServiceStatus == 1
-
-#define ITMS_VERIFY_RECEIPT_URL @"http://192.168.1.151:8028/api/pay/verify_apple_order"
-
-#endif
-
-#define _InAppPurchasing [JRInAppPurchasing sharedInstance]
-
-NS_ASSUME_NONNULL_BEGIN
-
-typedef NS_ENUM(NSUInteger, JRPaymentTransactionState) {
-    /// 没有Payment权限
-    JRPaymentTransactionStateNoPaymentPermission,
-    /// addPayment失败
-    JRPaymentTransactionStateAddPaymentFailed,
-    /// 正在购买
-    JRPaymentTransactionStatePurchasing,
-    /// 购买完成
-    JRPaymentTransactionStatePurchased,
-    /// 用户取消
-    JRPaymentTransactionStateCancel,
-    /// 恢复购买
-    JRPaymentTransactionStateRestored,
-    /// 订单效验成功
-    JRPaymentTransactionStateValidationSuccess,
-    /// 订单效验失败
-    JRPaymentTransactionStateValidationFailed,
-    /// 购买失败
-    JRPaymentTransactionStateFailed,
-    /// 最终状态未确定
-    JRPaymentTransactionStateDeferred,
-    /// 交易结束
-    JRPaymentTransactionStateFinished
-};
-
-@protocol JRInAppPurchasingDelegate <NSObject>
-
-@required
-- (void)wh_updatedTransactions:(JRPaymentTransactionState)state;
-
-@end
-
-@interface JRInAppPurchasing : NSObject
-
-@property (class, nonatomic, strong, readonly) JRInAppPurchasing *sharedInstance;
-
-@property (nonatomic, weak) id<JRInAppPurchasingDelegate> delegate;
-
-- (void)identifyCanMakePaymentWithProductId:(NSString *)productId;
-
-@end
-
-```
-
-.m
-
-```
 #import "JRInAppPurchasing.h"
 #import <StoreKit/StoreKit.h>
 
@@ -192,19 +128,23 @@ static JRInAppPurchasing *_instance = nil;
     }
 }
 
+// Sent when transactions are removed from the queue (via finishTransaction:).
 - (void)paymentQueue:(SKPaymentQueue*)queue removedTransactions:(NSArray *)transactions {
     
     NSLog(@"---removedTransactions");
 }
 
+// Sent when an error is encountered while adding transactions from the user's purchase history back to the queue.
 - (void)paymentQueue:(SKPaymentQueue*)queue restoreCompletedTransactionsFailedWithError:(NSError*)error {
     NSLog(@"restoreCompletedTransactionsFailedWithError");
 }
 
+// Sent when all transactions from the user's purchase history have successfully been added back to the queue.
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue*)queue {
     NSLog(@"paymentQueueRestoreCompletedTransactionsFinished");
 }
 
+// Sent when the download state has changed.
 - (void)paymentQueue:(SKPaymentQueue*)queue updatedDownloads:(NSArray *)downloads {
     NSLog(@"updatedDownloads");
 }
@@ -325,27 +265,4 @@ static JRInAppPurchasing *_instance = nil;
     }
 }
 
-```
-
-#注意事项
-```
-/*
-1. 沙盒环境测试appStore内购流程的时候，请使用没越狱的设备。
-2. 请务必使用真机来测试，一切以真机为准。
-3.项目的Bundle identifier需要与您申请AppID时填写的bundleID一致，不然会无法请求到商品信息。
-4.如果是你自己的设备上已经绑定了自己的AppleID账号请先注销掉, 否则你哭爹喊娘都不知道是怎么回事。
-5.订单校验 苹果审核app时，仍然在沙盒环境下测试，所以需要先进行正式环境验证，如果发现是沙盒环境则转到沙盒验证。
-识别沙盒环境订单方法： 
-  1.根据字段 environment = sandbox。
-  2.根据验证接口返回的状态码,如果status=21007，则表示当前为沙盒环境。
-苹果反馈的状态码：
-  21000App Store无法读取你提供的JSON数据
-  21002 订单数据不符合格式
-  21003 订单无法被验证
-  21004 你提供的共享密钥和账户的共享密钥不一致
-  21005 订单服务器当前不可用
-  21006 订单是有效的，但订阅服务已经过期。当收到这个信息时，解码后的收据信息也包含在返回内容中
-  21007 订单信息是测试用（sandbox），但却被发送到产品环境中验证
-  21008 订单信息是产品环境中使用，但却被发送到测试环境中验证
-*/
-```
+@end
